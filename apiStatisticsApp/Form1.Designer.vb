@@ -22,38 +22,36 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.Data_URL_ListBox = New System.Windows.Forms.ListBox()
+        Me.JobCollection_ListBox = New System.Windows.Forms.ListBox()
         Me.Submit_Query_Button = New System.Windows.Forms.Button()
         Me.Data_Query_Limit_NumericUpDown = New System.Windows.Forms.NumericUpDown()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Job_Description_RichTextBox = New System.Windows.Forms.RichTextBox()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.NumericUpDown1 = New System.Windows.Forms.NumericUpDown()
         Me.Label5 = New System.Windows.Forms.Label()
+        Me.JobCollectionRawDataFiles_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Query_All_Jobs_Detail_By_Id_Button = New System.Windows.Forms.Button()
         CType(Me.Data_Query_Limit_NumericUpDown, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.NumericUpDown1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
-        'Data_URL_ListBox
+        'JobCollection_ListBox
         '
-        Me.Data_URL_ListBox.FormattingEnabled = True
-        Me.Data_URL_ListBox.ItemHeight = 19
-        Me.Data_URL_ListBox.Location = New System.Drawing.Point(32, 83)
-        Me.Data_URL_ListBox.Name = "Data_URL_ListBox"
-        Me.Data_URL_ListBox.Size = New System.Drawing.Size(426, 441)
-        Me.Data_URL_ListBox.TabIndex = 0
+        Me.JobCollection_ListBox.FormattingEnabled = True
+        Me.JobCollection_ListBox.ItemHeight = 19
+        Me.JobCollection_ListBox.Location = New System.Drawing.Point(32, 121)
+        Me.JobCollection_ListBox.Name = "JobCollection_ListBox"
+        Me.JobCollection_ListBox.Size = New System.Drawing.Size(472, 403)
+        Me.JobCollection_ListBox.TabIndex = 0
         '
         'Submit_Query_Button
         '
-        Me.Submit_Query_Button.Location = New System.Drawing.Point(364, 49)
+        Me.Submit_Query_Button.Location = New System.Drawing.Point(382, 49)
         Me.Submit_Query_Button.Name = "Submit_Query_Button"
-        Me.Submit_Query_Button.Size = New System.Drawing.Size(94, 29)
+        Me.Submit_Query_Button.Size = New System.Drawing.Size(122, 29)
         Me.Submit_Query_Button.TabIndex = 1
-        Me.Submit_Query_Button.Text = "送出"
+        Me.Submit_Query_Button.Text = "送出並生成檔案"
         Me.Submit_Query_Button.UseVisualStyleBackColor = True
         '
         'Data_Query_Limit_NumericUpDown
@@ -74,48 +72,16 @@ Partial Class Form1
         '
         'Job_Description_RichTextBox
         '
-        Me.Job_Description_RichTextBox.Location = New System.Drawing.Point(489, 154)
+        Me.Job_Description_RichTextBox.Location = New System.Drawing.Point(522, 154)
         Me.Job_Description_RichTextBox.Name = "Job_Description_RichTextBox"
-        Me.Job_Description_RichTextBox.Size = New System.Drawing.Size(472, 370)
+        Me.Job_Description_RichTextBox.Size = New System.Drawing.Size(439, 370)
         Me.Job_Description_RichTextBox.TabIndex = 4
         Me.Job_Description_RichTextBox.Text = ""
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(489, 55)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(80, 19)
-        Me.Label2.TabIndex = 5
-        Me.Label2.Text = "公司名稱 : "
-        '
-        'TextBox1
-        '
-        Me.TextBox1.Location = New System.Drawing.Point(575, 47)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(386, 27)
-        Me.TextBox1.TabIndex = 6
-        '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(489, 91)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(80, 19)
-        Me.Label3.TabIndex = 7
-        Me.Label3.Text = "聯繫方式 : "
-        '
-        'TextBox2
-        '
-        Me.TextBox2.Location = New System.Drawing.Point(575, 83)
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(386, 27)
-        Me.TextBox2.TabIndex = 8
         '
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(489, 132)
+        Me.Label4.Location = New System.Drawing.Point(522, 132)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(154, 19)
         Me.Label4.TabIndex = 9
@@ -123,37 +89,53 @@ Partial Class Form1
         '
         'NumericUpDown1
         '
-        Me.NumericUpDown1.Location = New System.Drawing.Point(299, 48)
+        Me.NumericUpDown1.Location = New System.Drawing.Point(323, 47)
         Me.NumericUpDown1.Name = "NumericUpDown1"
         Me.NumericUpDown1.Size = New System.Drawing.Size(53, 27)
         Me.NumericUpDown1.TabIndex = 10
+        Me.NumericUpDown1.Value = New Decimal(New Integer() {5, 0, 0, 0})
         '
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(213, 54)
+        Me.Label5.Location = New System.Drawing.Point(237, 54)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(80, 19)
         Me.Label5.TabIndex = 11
         Me.Label5.Text = "間隔秒數 : "
+        '
+        'JobCollectionRawDataFiles_ComboBox
+        '
+        Me.JobCollectionRawDataFiles_ComboBox.FormattingEnabled = True
+        Me.JobCollectionRawDataFiles_ComboBox.Location = New System.Drawing.Point(32, 83)
+        Me.JobCollectionRawDataFiles_ComboBox.Name = "JobCollectionRawDataFiles_ComboBox"
+        Me.JobCollectionRawDataFiles_ComboBox.Size = New System.Drawing.Size(344, 27)
+        Me.JobCollectionRawDataFiles_ComboBox.TabIndex = 12
+        '
+        'Query_All_Jobs_Detail_By_Id_Button
+        '
+        Me.Query_All_Jobs_Detail_By_Id_Button.Location = New System.Drawing.Point(382, 81)
+        Me.Query_All_Jobs_Detail_By_Id_Button.Name = "Query_All_Jobs_Detail_By_Id_Button"
+        Me.Query_All_Jobs_Detail_By_Id_Button.Size = New System.Drawing.Size(122, 29)
+        Me.Query_All_Jobs_Detail_By_Id_Button.TabIndex = 13
+        Me.Query_All_Jobs_Detail_By_Id_Button.Text = "依檔案查詢敘述"
+        Me.Query_All_Jobs_Detail_By_Id_Button.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 19.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1004, 600)
+        Me.Controls.Add(Me.Query_All_Jobs_Detail_By_Id_Button)
+        Me.Controls.Add(Me.JobCollectionRawDataFiles_ComboBox)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.NumericUpDown1)
         Me.Controls.Add(Me.Label4)
-        Me.Controls.Add(Me.TextBox2)
-        Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.TextBox1)
-        Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Job_Description_RichTextBox)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.Data_Query_Limit_NumericUpDown)
         Me.Controls.Add(Me.Submit_Query_Button)
-        Me.Controls.Add(Me.Data_URL_ListBox)
+        Me.Controls.Add(Me.JobCollection_ListBox)
         Me.Name = "Form1"
         Me.Text = "Form1"
         CType(Me.Data_Query_Limit_NumericUpDown, System.ComponentModel.ISupportInitialize).EndInit()
@@ -163,16 +145,14 @@ Partial Class Form1
 
     End Sub
 
-    Friend WithEvents Data_URL_ListBox As ListBox
+    Friend WithEvents JobCollection_ListBox As ListBox
     Friend WithEvents Submit_Query_Button As Button
     Friend WithEvents Data_Query_Limit_NumericUpDown As NumericUpDown
     Friend WithEvents Label1 As Label
     Friend WithEvents Job_Description_RichTextBox As RichTextBox
-    Friend WithEvents Label2 As Label
-    Friend WithEvents TextBox1 As TextBox
-    Friend WithEvents Label3 As Label
-    Friend WithEvents TextBox2 As TextBox
     Friend WithEvents Label4 As Label
     Friend WithEvents NumericUpDown1 As NumericUpDown
     Friend WithEvents Label5 As Label
+    Friend WithEvents JobCollectionRawDataFiles_ComboBox As ComboBox
+    Friend WithEvents Query_All_Jobs_Detail_By_Id_Button As Button
 End Class
