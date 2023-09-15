@@ -5,6 +5,8 @@ Imports System.Text
 Imports Newtonsoft.Json
 Imports Newtonsoft.Json.Linq
 Imports System.IO
+Imports System.Collections
+Imports System.Text.RegularExpressions
 
 Public Class Form1
 
@@ -18,10 +20,18 @@ Public Class Form1
 
         Dim filePath As String = JobCollectionDir + "\JobCollectionRawData_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt"
 
+
+        ' Reset progress bar
+        Dim total_run As Integer = Math.Ceiling(Data_Query_Limit_NumericUpDown.Value / 20)
+        Job_Searching_ProgressBar.Value = 0
+        Progress_Label.Text = "0%"
+
+        Dim run As Integer = 0
         For offset As Integer = 0 To Data_Query_Limit_NumericUpDown.Value - 1 Step 20
             Debug.WriteLine("Offset : " & offset)
 
-            Dim jsonString = Await Submit_Get_Jobs_Collection_API_Request(offset)
+            ' Get jobs collection
+            Dim jsonString = Await Submit_Get_Jobs_Collection_API_Request(offset, "PartTime")
 
             ' If get error exit the sub
             If jsonString = "error" Then
@@ -29,28 +39,92 @@ Public Class Form1
                 Exit Sub
             End If
 
-            Dim jsonObject As JObject = JObject.Parse(jsonString)
-            Dim resultArray As JArray = jsonObject.SelectToken("data.job_search.result")
+            Dim jobsIDjsonObject As JObject = JObject.Parse(jsonString)
+            Dim jobsresultArray As JArray = jobsIDjsonObject.SelectToken("data.job_search.result")
 
+            Dim jobIdList As New List(Of String)
+
+            ' Add job id to list
+            For Each item As JObject In jobsresultArray
+                jobIdList.Add(item.SelectToken("_id").ToString())
+            Next
+
+            ' wait 500 msec before calling next api
+            Await Delay_msec(500)
+
+            ' Get Jobs detail by Id array
+            Dim jobsDetailResultString = Await Submit_Get_Job_Detail_API_Request(jobIdList)
+            Dim jobsDetailJsonObject As JObject = JObject.Parse(jobsDetailResultString)
+            Dim jobsDetailResultArray As JArray = jobsDetailJsonObject.SelectToken("data.get_jobs")
+
+
+            ' Save to file line by line
             Using writer As New StreamWriter(filePath, True)
 
-                For Each item As JObject In resultArray
-                    JobCollection_ListBox.Items.Add(item.SelectToken("company.name"))
-                    writer.WriteLine(item.SelectToken("_id").ToString() + "&nbsp;" + item.SelectToken("company.name").ToString())
+                For Each item As JObject In jobsDetailResultArray
+
+                    Dim job_Id = item.SelectToken("_id").ToString()
+                    Dim job_company_name = item.SelectToken("company.name").ToString()
+                    Dim job_description = item.SelectToken("job_description").ToString() '.Replace(vbCrLf, "").Replace(vbLf, "")
+
+
+                    'Filter out phone numbers
+                    Dim phoneNumberPattern As String = "(\d{8})" ' match whatsapp
+                    Dim phoneNumber_regex As New Regex(phoneNumberPattern)
+                    Dim number_match As Match = phoneNumber_regex.Match(job_description)
+
+                    Dim phoneNumber = "N/A"
+
+                    If number_match.Success Then
+                        phoneNumber = number_match.Value
+                    End If
+
+                    'Filter out Email
+                    Dim emailPattern As String = "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
+                    Dim email_regex As New Regex(emailPattern)
+                    Dim email_match As Match = email_regex.Match(job_description)
+
+                    Dim email_str = "N/A"
+
+                    If email_match.Success Then
+                        email_str = email_match.Value
+                    End If
+
+                    Dim job_item = job_Id + "&nbsp;" + job_company_name + "&nbsp;" + email_str + "&nbsp;" + phoneNumber
+
+                    JobCollection_ListBox.Items.Add(job_item)
+                    writer.WriteLine(job_item)
                 Next
                 writer.Close()
             End Using
 
 
-            Await Delay_msec(NumericUpDown1.Value * 1000)
+            ' Render progress bar
+            run += 1
+            Dim my_progress = run / total_run * 100
+            Job_Searching_ProgressBar.Value = my_progress
+            Progress_Label.Text = my_progress.ToString() + "%"
+
+            If total_run > run Then
+                Await Delay_msec(NumericUpDown1.Value * 1000)
+            End If
+
+
+
         Next
 
+
+        MsgBox("任務完成")
         'Data_URL_ListBox.Items.Add("Test1")
+
+
     End Sub
 
 
 
-    Public Async Function Submit_Get_Jobs_Collection_API_Request(offset As Integer) As Task(Of String)
+    Public Async Function Submit_Get_Jobs_Collection_API_Request(offset As Integer, employment As String) As Task(Of String)
+
+        ' employment : FullTime | PartTime
 
         Dim requestData As New With {
         .query = "
@@ -120,7 +194,7 @@ Public Class Form1
             .variables = New With {
                 .company = Nothing,
                 .district = New List(Of String)(),
-                .employment = New List(Of String)() From {"PartTime"},
+                .employment = New List(Of String)() From {},
                 .fromWorkingDaysPerWeek = Nothing,
                 .fromWorkingHoursPerDay = Nothing,
                 .hourlyRate = Nothing,
@@ -164,14 +238,14 @@ Public Class Form1
 
     End Function
 
-    Public Async Function Submit_Get_Job_Detail_API_Request(job_Id As String) As Task(Of String)
-        Debug.WriteLine("Get Job Detail By Id : " + job_Id)
+    Public Async Function Submit_Get_Job_Detail_API_Request(job_Ids As List(Of String)) As Task(Of String)
+
 
 
         Dim requestData As New With {
             .query = "query GetJobsByIDs (  $ids: [ID]) {  get_jobs (    _id: $ids  ) {    ...jobFragmentFull  }}fragment jobFragmentFull on Job {  published_at  _id  _updated_at  address {    _id    address    district_name    district_short_code    lat    lng  }  address_on_map  allowances {    description    name  }  attributes {    category    category_display_sequence    name    name_display_sequence  }  alternative_sat  career_level  cert  company {    _id    about    company_logo_medium    company_logo_thumbnail    name  }  education_requirement {    category    level    name  }  employment  end_date  from_hourly_rate  from_monthly_rate  from_working_days_per_week  from_working_hours_per_day  job_description  job_name  job_types {    category    name    short_code  }  shift_required  skill {    name  }  slug {    locale    value  }  spoken_skill {    level    name  }  start_date  to_hourly_rate  to_monthly_rate  to_working_days_per_week  to_working_hours_per_day  vacancy  working_hour {    _id    day_of_week    end_time    start_time  }  written_skill {    level    name  }  state  is_applied  is_closed  is_suspended}",
             .variables = New With {
-                .ids = New List(Of String) From {job_Id}
+                .ids = job_Ids'New List(Of String) From {"6b73fee4-700c-49f1-8382-7f9160bd7490", "e5cc9a11-f7b4-4818-a17d-e1ff95e6885d"}
             }
         }
 
@@ -210,7 +284,7 @@ Public Class Form1
         Await Task.Delay(msec)
     End Function
 
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Async Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Check if Folder exists
         If Not Directory.Exists(JobCollectionDir) Then
@@ -226,7 +300,6 @@ Public Class Form1
                 JobCollectionRawDataFiles_ComboBox.Items.Add(myfile)
             End If
         Next
-
 
 
     End Sub
@@ -250,8 +323,15 @@ Public Class Form1
 
     End Sub
 
-    Private Sub Query_All_Jobs_Detail_By_Id_Button_Click(sender As Object, e As EventArgs) Handles Query_All_Jobs_Detail_By_Id_Button.Click
-        MsgBox("Not Yet implemented")
+    Private Async Sub Query_All_Jobs_Detail_By_Id_Button_Click(sender As Object, e As EventArgs) Handles Query_All_Jobs_Detail_By_Id_Button.Click
+        'MsgBox("Not Yet implemented")
+
+
+
+        'Dim jsonString = Await Submit_Get_Job_Detail_API_Request()
+        'Job_Description_RichTextBox.Text = jsonString
+
+
     End Sub
 
 

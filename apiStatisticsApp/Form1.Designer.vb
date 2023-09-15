@@ -30,8 +30,11 @@ Partial Class Form1
         Me.Label4 = New System.Windows.Forms.Label()
         Me.NumericUpDown1 = New System.Windows.Forms.NumericUpDown()
         Me.Label5 = New System.Windows.Forms.Label()
-        Me.JobCollectionRawDataFiles_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Query_All_Jobs_Detail_By_Id_Button = New System.Windows.Forms.Button()
+        Me.JobCollectionRawDataFiles_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Job_Searching_ProgressBar = New System.Windows.Forms.ProgressBar()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.Progress_Label = New System.Windows.Forms.Label()
         CType(Me.Data_Query_Limit_NumericUpDown, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.NumericUpDown1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -47,7 +50,7 @@ Partial Class Form1
         '
         'Submit_Query_Button
         '
-        Me.Submit_Query_Button.Location = New System.Drawing.Point(382, 49)
+        Me.Submit_Query_Button.Location = New System.Drawing.Point(382, 46)
         Me.Submit_Query_Button.Name = "Submit_Query_Button"
         Me.Submit_Query_Button.Size = New System.Drawing.Size(122, 29)
         Me.Submit_Query_Button.TabIndex = 1
@@ -58,13 +61,13 @@ Partial Class Form1
         '
         Me.Data_Query_Limit_NumericUpDown.Location = New System.Drawing.Point(118, 47)
         Me.Data_Query_Limit_NumericUpDown.Name = "Data_Query_Limit_NumericUpDown"
-        Me.Data_Query_Limit_NumericUpDown.Size = New System.Drawing.Size(89, 27)
+        Me.Data_Query_Limit_NumericUpDown.Size = New System.Drawing.Size(76, 27)
         Me.Data_Query_Limit_NumericUpDown.TabIndex = 2
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(32, 55)
+        Me.Label1.Location = New System.Drawing.Point(32, 51)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(80, 19)
         Me.Label1.TabIndex = 3
@@ -74,7 +77,7 @@ Partial Class Form1
         '
         Me.Job_Description_RichTextBox.Location = New System.Drawing.Point(522, 154)
         Me.Job_Description_RichTextBox.Name = "Job_Description_RichTextBox"
-        Me.Job_Description_RichTextBox.Size = New System.Drawing.Size(439, 370)
+        Me.Job_Description_RichTextBox.Size = New System.Drawing.Size(457, 370)
         Me.Job_Description_RichTextBox.TabIndex = 4
         Me.Job_Description_RichTextBox.Text = ""
         '
@@ -98,34 +101,62 @@ Partial Class Form1
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(237, 54)
+        Me.Label5.Location = New System.Drawing.Point(237, 51)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(80, 19)
         Me.Label5.TabIndex = 11
         Me.Label5.Text = "間隔秒數 : "
         '
-        'JobCollectionRawDataFiles_ComboBox
-        '
-        Me.JobCollectionRawDataFiles_ComboBox.FormattingEnabled = True
-        Me.JobCollectionRawDataFiles_ComboBox.Location = New System.Drawing.Point(32, 83)
-        Me.JobCollectionRawDataFiles_ComboBox.Name = "JobCollectionRawDataFiles_ComboBox"
-        Me.JobCollectionRawDataFiles_ComboBox.Size = New System.Drawing.Size(344, 27)
-        Me.JobCollectionRawDataFiles_ComboBox.TabIndex = 12
-        '
         'Query_All_Jobs_Detail_By_Id_Button
         '
-        Me.Query_All_Jobs_Detail_By_Id_Button.Location = New System.Drawing.Point(382, 81)
+        Me.Query_All_Jobs_Detail_By_Id_Button.Location = New System.Drawing.Point(852, 94)
         Me.Query_All_Jobs_Detail_By_Id_Button.Name = "Query_All_Jobs_Detail_By_Id_Button"
-        Me.Query_All_Jobs_Detail_By_Id_Button.Size = New System.Drawing.Size(122, 29)
+        Me.Query_All_Jobs_Detail_By_Id_Button.Size = New System.Drawing.Size(127, 29)
         Me.Query_All_Jobs_Detail_By_Id_Button.TabIndex = 13
         Me.Query_All_Jobs_Detail_By_Id_Button.Text = "依檔案查詢敘述"
         Me.Query_All_Jobs_Detail_By_Id_Button.UseVisualStyleBackColor = True
+        '
+        'JobCollectionRawDataFiles_ComboBox
+        '
+        Me.JobCollectionRawDataFiles_ComboBox.FormattingEnabled = True
+        Me.JobCollectionRawDataFiles_ComboBox.Location = New System.Drawing.Point(522, 96)
+        Me.JobCollectionRawDataFiles_ComboBox.Name = "JobCollectionRawDataFiles_ComboBox"
+        Me.JobCollectionRawDataFiles_ComboBox.Size = New System.Drawing.Size(324, 27)
+        Me.JobCollectionRawDataFiles_ComboBox.TabIndex = 12
+        '
+        'Job_Searching_ProgressBar
+        '
+        Me.Job_Searching_ProgressBar.Location = New System.Drawing.Point(77, 81)
+        Me.Job_Searching_ProgressBar.Name = "Job_Searching_ProgressBar"
+        Me.Job_Searching_ProgressBar.Size = New System.Drawing.Size(368, 29)
+        Me.Job_Searching_ProgressBar.TabIndex = 14
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(32, 91)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(39, 19)
+        Me.Label2.TabIndex = 15
+        Me.Label2.Text = "進度"
+        '
+        'Progress_Label
+        '
+        Me.Progress_Label.AutoSize = True
+        Me.Progress_Label.Location = New System.Drawing.Point(451, 91)
+        Me.Progress_Label.Name = "Progress_Label"
+        Me.Progress_Label.Size = New System.Drawing.Size(35, 19)
+        Me.Progress_Label.TabIndex = 16
+        Me.Progress_Label.Text = "0 %"
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 19.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1004, 600)
+        Me.Controls.Add(Me.Progress_Label)
+        Me.Controls.Add(Me.Label2)
+        Me.Controls.Add(Me.Job_Searching_ProgressBar)
         Me.Controls.Add(Me.Query_All_Jobs_Detail_By_Id_Button)
         Me.Controls.Add(Me.JobCollectionRawDataFiles_ComboBox)
         Me.Controls.Add(Me.Label5)
@@ -153,6 +184,9 @@ Partial Class Form1
     Friend WithEvents Label4 As Label
     Friend WithEvents NumericUpDown1 As NumericUpDown
     Friend WithEvents Label5 As Label
-    Friend WithEvents JobCollectionRawDataFiles_ComboBox As ComboBox
     Friend WithEvents Query_All_Jobs_Detail_By_Id_Button As Button
+    Friend WithEvents JobCollectionRawDataFiles_ComboBox As ComboBox
+    Friend WithEvents Job_Searching_ProgressBar As ProgressBar
+    Friend WithEvents Label2 As Label
+    Friend WithEvents Progress_Label As Label
 End Class
