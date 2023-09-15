@@ -101,7 +101,7 @@ Public Class Form1
 
             ' Render progress bar
             run += 1
-            Dim my_progress = run / total_run * 100
+            Dim my_progress = Math.Ceiling(run / total_run * 100)
             Job_Searching_ProgressBar.Value = my_progress
             Progress_Label.Text = my_progress.ToString() + "%"
 
@@ -109,14 +109,10 @@ Public Class Form1
                 Await Delay_msec(NumericUpDown1.Value * 1000)
             End If
 
-
-
         Next
-
 
         MsgBox("任務完成")
         'Data_URL_ListBox.Items.Add("Test1")
-
 
     End Sub
 
