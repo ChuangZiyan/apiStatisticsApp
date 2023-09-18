@@ -21,104 +21,139 @@ Public Class Form1
         Dim filePath As String = JobCollectionDir + "\JobCollectionRawData_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt"
 
 
-        ' Reset progress bar
-        Dim total_run As Integer = Math.Ceiling(Data_Query_Limit_NumericUpDown.Value / 20)
-        Job_Searching_ProgressBar.Value = 0
-        Progress_Label.Text = "0%"
 
-        Dim run As Integer = 0
-        For offset As Integer = 0 To Data_Query_Limit_NumericUpDown.Value - 1 Step 20
-            Debug.WriteLine("Offset : " & offset)
+        Dim districtList As New List(Of String) From {
+            "000006", "000007", "000008", "000009", "000010", "000011", "000012", "000013", "000014", "000015",
+            "000016", "000017", "000018", "000019", "000020", "000021", "000022", "000023", "000024", "000025",
+            "000026", "000027", "000028", "000029", "000030", "000031", "000032", "000033", "000034", "000035",
+            "000036", "000037"}
 
-            ' Get jobs collection
-            Dim jsonString = Await Submit_Get_Jobs_Collection_API_Request(offset, "PartTime")
 
-            ' If get error exit the sub
-            If jsonString = "error" Then
-                MsgBox("發生其他錯誤，停止查詢")
-                Exit Sub
-            End If
+        ' For test
+        Dim districtList_test As New List(Of String) From {"000037", "000008"}
 
-            Dim jobsIDjsonObject As JObject = JObject.Parse(jsonString)
-            Dim jobsresultArray As JArray = jobsIDjsonObject.SelectToken("data.job_search.result")
+        Dim dist_index As Integer = 0
 
-            Dim jobIdList As New List(Of String)
+        For Each dist In districtList
+            Debug.WriteLine("#####" & dist)
+            dist_index += 1
+            Total_Completed_Dist_Label.Text = "(" & dist_index & "/" & districtList.Count & ")"
+            Job_Searching_Status_Label.Text = "查詢地區 " + dist + " 中..."
 
-            ' Add job id to list
-            For Each item As JObject In jobsresultArray
-                jobIdList.Add(item.SelectToken("_id").ToString())
+
+            'Continue For
+            Dim parmDistList As New List(Of String) From {dist}
+
+            Dim totalDataCount = Await Submit_Get_Jobs_Collection_API_Request(20, parmDistList)
+
+            Dim totalDataCountJsonObject As JObject = JObject.Parse(totalDataCount)
+
+            Dim dist_total_data_count As Integer = totalDataCountJsonObject.SelectToken("data.job_search.total")
+
+
+
+            ' Reset progress bar
+            Dim total_run As Integer = Math.Ceiling(dist_total_data_count / 20)
+            Job_Searching_ProgressBar.Value = 0
+            Progress_Label.Text = "0%"
+
+            ' start query
+            Dim run As Integer = 0
+            For offset As Integer = 0 To dist_total_data_count - 1 Step 20
+                Debug.WriteLine("Offset : " & offset)
+
+                ' Get jobs collection
+                Dim jsonString = Await Submit_Get_Jobs_Collection_API_Request(offset, parmDistList)
+
+                ' If get error exit the sub
+                If jsonString = "error" Then
+                    MsgBox("發生其他錯誤，停止查詢")
+                    Exit Sub
+                End If
+
+                Dim jobsIDjsonObject As JObject = JObject.Parse(jsonString)
+                Dim jobsresultArray As JArray = jobsIDjsonObject.SelectToken("data.job_search.result")
+
+                Dim jobIdList As New List(Of String)
+
+                ' Add job id to list
+                For Each item As JObject In jobsresultArray
+                    jobIdList.Add(item.SelectToken("_id").ToString())
+                Next
+
+                ' wait 500 msec before calling next api
+                Await Delay_msec(500)
+
+                ' Get Jobs detail by Id array
+                Dim jobsDetailResultString = Await Submit_Get_Job_Detail_API_Request(jobIdList)
+                Dim jobsDetailJsonObject As JObject = JObject.Parse(jobsDetailResultString)
+                Dim jobsDetailResultArray As JArray = jobsDetailJsonObject.SelectToken("data.get_jobs")
+
+
+                ' Save to file line by line
+                Using writer As New StreamWriter(filePath, True)
+
+                    For Each item As JObject In jobsDetailResultArray
+
+                        Dim job_Id = item.SelectToken("_id").ToString()
+                        Dim job_company_name = item.SelectToken("company.name").ToString()
+                        Dim job_description = item.SelectToken("job_description").ToString() '.Replace(vbCrLf, "").Replace(vbLf, "")
+
+
+                        'Filter out phone numbers
+                        Dim phoneNumberPattern As String = "(\d{8})" ' match whatsapp
+                        Dim phoneNumber_regex As New Regex(phoneNumberPattern)
+                        Dim number_match As Match = phoneNumber_regex.Match(job_description)
+
+                        Dim phoneNumber = "N/A"
+
+                        If number_match.Success Then
+                            phoneNumber = number_match.Value
+                        End If
+
+                        'Filter out Email
+                        Dim emailPattern As String = "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
+                        Dim email_regex As New Regex(emailPattern)
+                        Dim email_match As Match = email_regex.Match(job_description)
+
+                        Dim email_str = "N/A"
+
+                        If email_match.Success Then
+                            email_str = email_match.Value
+                        End If
+
+                        Dim job_item = job_Id + "&nbsp;" + job_company_name + "&nbsp;" + email_str + "&nbsp;" + phoneNumber
+
+                        'JobCollection_ListBox.Items.Add(job_item)
+                        writer.WriteLine(job_item)
+                    Next
+                    writer.Close()
+                End Using
+
+
+                ' Render progress bar
+                run += 1
+                Dim my_progress = Math.Ceiling(run / total_run * 100)
+                Job_Searching_ProgressBar.Value = my_progress
+                Progress_Label.Text = my_progress.ToString() + "%"
+
+                If total_run > run Then
+                    Await Delay_msec(NumericUpDown1.Value * 1000)
+                End If
+
             Next
 
-            ' wait 500 msec before calling next api
-            Await Delay_msec(500)
-
-            ' Get Jobs detail by Id array
-            Dim jobsDetailResultString = Await Submit_Get_Job_Detail_API_Request(jobIdList)
-            Dim jobsDetailJsonObject As JObject = JObject.Parse(jobsDetailResultString)
-            Dim jobsDetailResultArray As JArray = jobsDetailJsonObject.SelectToken("data.get_jobs")
-
-
-            ' Save to file line by line
-            Using writer As New StreamWriter(filePath, True)
-
-                For Each item As JObject In jobsDetailResultArray
-
-                    Dim job_Id = item.SelectToken("_id").ToString()
-                    Dim job_company_name = item.SelectToken("company.name").ToString()
-                    Dim job_description = item.SelectToken("job_description").ToString() '.Replace(vbCrLf, "").Replace(vbLf, "")
-
-
-                    'Filter out phone numbers
-                    Dim phoneNumberPattern As String = "(\d{8})" ' match whatsapp
-                    Dim phoneNumber_regex As New Regex(phoneNumberPattern)
-                    Dim number_match As Match = phoneNumber_regex.Match(job_description)
-
-                    Dim phoneNumber = "N/A"
-
-                    If number_match.Success Then
-                        phoneNumber = number_match.Value
-                    End If
-
-                    'Filter out Email
-                    Dim emailPattern As String = "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
-                    Dim email_regex As New Regex(emailPattern)
-                    Dim email_match As Match = email_regex.Match(job_description)
-
-                    Dim email_str = "N/A"
-
-                    If email_match.Success Then
-                        email_str = email_match.Value
-                    End If
-
-                    Dim job_item = job_Id + "&nbsp;" + job_company_name + "&nbsp;" + email_str + "&nbsp;" + phoneNumber
-
-                    JobCollection_ListBox.Items.Add(job_item)
-                    writer.WriteLine(job_item)
-                Next
-                writer.Close()
-            End Using
-
-
-            ' Render progress bar
-            run += 1
-            Dim my_progress = Math.Ceiling(run / total_run * 100)
-            Job_Searching_ProgressBar.Value = my_progress
-            Progress_Label.Text = my_progress.ToString() + "%"
-
-            If total_run > run Then
-                Await Delay_msec(NumericUpDown1.Value * 1000)
-            End If
 
         Next
 
-        MsgBox("任務完成")
+        'Exit Sub
+        Job_Searching_Status_Label.Text = "任務完成"
         'Data_URL_ListBox.Items.Add("Test1")
-
     End Sub
 
 
 
-    Public Async Function Submit_Get_Jobs_Collection_API_Request(offset As Integer, employment As String) As Task(Of String)
+    Public Async Function Submit_Get_Jobs_Collection_API_Request(offset As Integer, distList As List(Of String)) As Task(Of String)
 
         ' employment : FullTime | PartTime
 
@@ -189,7 +224,7 @@ Public Class Form1
             ",
             .variables = New With {
                 .company = Nothing,
-                .district = New List(Of String)(),
+                .district = distList,
                 .employment = New List(Of String)() From {},
                 .fromWorkingDaysPerWeek = Nothing,
                 .fromWorkingHoursPerDay = Nothing,
@@ -259,7 +294,7 @@ Public Class Form1
                 Dim responseBody As String = Await response.Content.ReadAsStringAsync()
                 Debug.WriteLine("############ responseBody: ############### ")
                 Debug.WriteLine(responseBody)
-                Job_Description_RichTextBox.Text = responseBody
+                'Job_Description_RichTextBox.Text = responseBody
                 Return responseBody
             Else
                 Debug.WriteLine("http status code : " & response.StatusCode)
