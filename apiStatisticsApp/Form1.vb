@@ -20,26 +20,22 @@ Public Class Form1
 
         Dim filePath As String = JobCollectionDir + "\JobCollectionRawData_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt"
 
-
-
         Dim districtList As New List(Of String) From {
             "000006", "000007", "000008", "000009", "000010", "000011", "000012", "000013", "000014", "000015",
             "000016", "000017", "000018", "000019", "000020", "000021", "000022", "000023", "000024", "000025",
             "000026", "000027", "000028", "000029", "000030", "000031", "000032", "000033", "000034", "000035",
             "000036", "000037"}
 
-
         ' For test
-        Dim districtList_test As New List(Of String) From {"000037", "000008"}
+        'Dim districtList As New List(Of String) From {"000037", "000008"}
 
         Dim dist_index As Integer = 0
 
         For Each dist In districtList
-            Debug.WriteLine("#####" & dist)
+            'Debug.WriteLine("#####" & dist)
             dist_index += 1
             Total_Completed_Dist_Label.Text = "(" & dist_index & "/" & districtList.Count & ")"
             Job_Searching_Status_Label.Text = "查詢地區 " + dist + " 中..."
-
 
             'Continue For
             Dim parmDistList As New List(Of String) From {dist}
@@ -49,8 +45,6 @@ Public Class Form1
             Dim totalDataCountJsonObject As JObject = JObject.Parse(totalDataCount)
 
             Dim dist_total_data_count As Integer = totalDataCountJsonObject.SelectToken("data.job_search.total")
-
-
 
             ' Reset progress bar
             Dim total_run As Integer = Math.Ceiling(dist_total_data_count / 20)
@@ -69,6 +63,7 @@ Public Class Form1
                 If jsonString = "error" Then
                     'MsgBox("發生其他錯誤，停止查詢")
                     'Exit Sub
+                    JobCollection_ListBox.Items.Add("查詢區域" & dist & " 筆數 " & offset & " 發生錯誤")
                     Exit For
                 End If
 
@@ -100,7 +95,6 @@ Public Class Form1
                         Dim job_company_name = item.SelectToken("company.name").ToString()
                         Dim job_description = item.SelectToken("job_description").ToString() '.Replace(vbCrLf, "").Replace(vbLf, "")
 
-
                         'Filter out phone numbers
                         Dim phoneNumberPattern As String = "(\d{8})" ' match whatsapp
                         Dim phoneNumber_regex As New Regex(phoneNumberPattern)
@@ -131,7 +125,6 @@ Public Class Form1
                     writer.Close()
                 End Using
 
-
                 ' Render progress bar
                 run += 1
                 Dim my_progress = Math.Ceiling(run / total_run * 100)
@@ -143,7 +136,6 @@ Public Class Form1
                 End If
 
             Next
-
 
         Next
 
@@ -354,17 +346,6 @@ Public Class Form1
         Catch ex As Exception
             Debug.WriteLine("readfile error：" & ex.Message)
         End Try
-
-    End Sub
-
-    Private Async Sub Query_All_Jobs_Detail_By_Id_Button_Click(sender As Object, e As EventArgs) Handles Query_All_Jobs_Detail_By_Id_Button.Click
-        'MsgBox("Not Yet implemented")
-
-
-
-        'Dim jsonString = Await Submit_Get_Job_Detail_API_Request()
-        'Job_Description_RichTextBox.Text = jsonString
-
 
     End Sub
 
