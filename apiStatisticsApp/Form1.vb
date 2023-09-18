@@ -67,8 +67,9 @@ Public Class Form1
 
                 ' If get error exit the sub
                 If jsonString = "error" Then
-                    MsgBox("發生其他錯誤，停止查詢")
-                    Exit Sub
+                    'MsgBox("發生其他錯誤，停止查詢")
+                    'Exit Sub
+                    Exit For
                 End If
 
                 Dim jobsIDjsonObject As JObject = JObject.Parse(jsonString)
@@ -257,9 +258,11 @@ Public Class Form1
                 'Debug.WriteLine(responseBody)
                 'Job_Description_RichTextBox.Text = responseBody
                 Return responseBody
-            Else
+                'Else
                 'Debug.WriteLine("http status code : " & response.StatusCode)
-                MsgBox("查詢失敗! Http status code : " & response.StatusCode)
+                'MsgBox("查詢失敗! Http status code : " & response.StatusCode)
+
+                'Return "error"
                 'Job_Description_RichTextBox.Text = response.StatusCode.ToString()
             End If
         End Using
