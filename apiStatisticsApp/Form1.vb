@@ -22,26 +22,22 @@ Public Class Form1
 
         Dim filePath As String = JobCollectionDir + "\JobCollectionRawData_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt"
 
-        Dim districtList As New List(Of String) From {
-            "000006", "000007", "000008", "000009", "000010", "000011", "000012", "000013", "000014", "000015",
-            "000016", "000017", "000018", "000019", "000020", "000021", "000022", "000023", "000024", "000025",
-            "000026", "000027", "000028", "000029", "000030", "000031", "000032", "000033", "000034", "000035",
-            "000036", "000037"}
+        Dim jobTypeList As New List(Of String) From {"aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap"}
 
         ' For test
         'Dim districtList As New List(Of String) From {"000037", "000008"}
 
         Dim dist_index As Integer = 0
 
-        For Each dist In districtList
+        For Each job_type In jobTypeList
             'Debug.WriteLine("#####" & dist)
 
             dist_index += 1
-            Total_Completed_Dist_Label.Text = "(" & dist_index & "/" & districtList.Count & ")"
-            Job_Searching_Status_Label.Text = "查詢地區 " + dist + " 中..."
+            Total_Completed_Dist_Label.Text = "(" & dist_index & "/" & jobTypeList.Count & ")"
+            Job_Searching_Status_Label.Text = "查詢工作種類 " + job_type + " 中..."
 
             'Continue For
-            Dim parmDistList As New List(Of String) From {dist}
+            Dim parmDistList As New List(Of String) From {job_type}
 
             Dim totalDataCount = Await Submit_Get_Jobs_Collection_API_Request(20, parmDistList)
 
@@ -67,7 +63,7 @@ Public Class Form1
                 If jsonString = "error" Then
                     'MsgBox("發生其他錯誤，停止查詢")
                     'Exit Sub
-                    JobCollection_ListBox.Items.Add("查詢區域" & dist & " 筆數 " & offset & " 發生錯誤")
+                    JobCollection_ListBox.Items.Add("查詢工作種類" & job_type & " 筆數 " & offset & " 發生錯誤")
                     Exit For
                 End If
 
@@ -139,7 +135,7 @@ Public Class Form1
 
                         Exit For
                     Catch ex As Exception
-                        JobCollection_ListBox.Items.Add("查詢區域" & dist & " 筆數 " & offset & " 工作細節發生錯誤")
+                        JobCollection_ListBox.Items.Add("查詢工作種類 " & job_type & " 筆數 " & offset & " 工作細節發生錯誤")
                         Continue For
                     End Try
 
@@ -164,7 +160,7 @@ Public Class Form1
 
 
 
-    Public Async Function Submit_Get_Jobs_Collection_API_Request(offset As Integer, distList As List(Of String)) As Task(Of String)
+    Public Async Function Submit_Get_Jobs_Collection_API_Request(offset As Integer, jobTypeList As List(Of String)) As Task(Of String)
 
         ' employment : FullTime | PartTime
 
@@ -235,12 +231,12 @@ Public Class Form1
             ",
             .variables = New With {
                 .company = Nothing,
-                .district = distList,
+                .district = New List(Of String)() From {},
                 .employment = New List(Of String)() From {},
                 .fromWorkingDaysPerWeek = Nothing,
                 .fromWorkingHoursPerDay = Nothing,
                 .hourlyRate = Nothing,
-                .jobType = New List(Of String)(),
+                .jobType = jobTypeList,
                 .latlng = Nothing,
                 .limit = 20,
                 .monthlyRate = Nothing,
