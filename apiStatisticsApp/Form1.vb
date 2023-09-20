@@ -22,7 +22,7 @@ Public Class Form1
 
         Dim filePath As String = JobCollectionDir + "\JobCollectionRawData_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt"
 
-        Dim jobTypeList As New List(Of String) From {"aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap"}
+        Dim jobTypeList As New List(Of String) From {"ap"}
 
         ' For test
         'Dim districtList As New List(Of String) From {"000037", "000008"}
@@ -250,31 +250,44 @@ Public Class Form1
 
         Dim apiUrl As String = "https://api.moovup.com/v2/seeker"
 
-        Using httpClient As New HttpClient()
+        For retry = 1 To 5
 
-            httpClient.DefaultRequestHeaders.Authorization = New AuthenticationHeaderValue("Bearer", bearerToken)
-            Dim jsonRequestData As String = JsonConvert.SerializeObject(requestData)
-            Dim content As New StringContent(jsonRequestData, Encoding.UTF8, "application/json")
+            Try
+                Using httpClient As New HttpClient()
 
-            Dim response As HttpResponseMessage = Await httpClient.PostAsync(apiUrl, content)
+                    httpClient.DefaultRequestHeaders.Authorization = New AuthenticationHeaderValue("Bearer", bearerToken)
+                    Dim jsonRequestData As String = JsonConvert.SerializeObject(requestData)
+                    Dim content As New StringContent(jsonRequestData, Encoding.UTF8, "application/json")
 
-            If response.IsSuccessStatusCode Then
-                Dim responseBody As String = Await response.Content.ReadAsStringAsync()
-                'Debug.WriteLine("############ responseBody: ############### ")
-                'Debug.WriteLine(responseBody)
-                'Job_Description_RichTextBox.Text = responseBody
-                Return responseBody
-                'Else
-                'Debug.WriteLine("http status code : " & response.StatusCode)
-                'MsgBox("查詢失敗! Http status code : " & response.StatusCode)
+                    Dim response As HttpResponseMessage = Await httpClient.PostAsync(apiUrl, content)
 
-                'Return "error"
-                'Job_Description_RichTextBox.Text = response.StatusCode.ToString()
-            End If
-        End Using
+                    If response.IsSuccessStatusCode Then
+                        Dim responseBody As String = Await response.Content.ReadAsStringAsync()
+                        'Debug.WriteLine("############ responseBody: ############### ")
+                        'Debug.WriteLine(responseBody)
+                        'Job_Description_RichTextBox.Text = responseBody
+                        Return responseBody
+                        'Else
+                        'Debug.WriteLine("http status code : " & response.StatusCode)
+                        'MsgBox("查詢失敗! Http status code : " & response.StatusCode)
 
+                        'Return "error"
+                        'Job_Description_RichTextBox.Text = response.StatusCode.ToString()
+                    End If
+                End Using
+
+                Return "error"
+
+            Catch ex As Exception
+                JobCollection_ListBox.Items.Add("查詢工作列表 Http request 發生錯誤 重試: " & retry)
+                Continue For
+
+            End Try
+
+        Next
 
         Return "error"
+
 
     End Function
 
@@ -291,27 +304,38 @@ Public Class Form1
 
         Dim apiUrl As String = "https://api.moovup.com/v2/seeker"
 
-        Using httpClient As New HttpClient()
+        For retry = 1 To 5
+            Try
+                Using httpClient As New HttpClient()
 
-            httpClient.DefaultRequestHeaders.Authorization = New AuthenticationHeaderValue("Bearer", bearerToken)
-            Dim jsonRequestData As String = JsonConvert.SerializeObject(requestData)
-            Dim content As New StringContent(jsonRequestData, Encoding.UTF8, "application/json")
+                    httpClient.DefaultRequestHeaders.Authorization = New AuthenticationHeaderValue("Bearer", bearerToken)
+                    Dim jsonRequestData As String = JsonConvert.SerializeObject(requestData)
+                    Dim content As New StringContent(jsonRequestData, Encoding.UTF8, "application/json")
 
-            Dim response As HttpResponseMessage = Await httpClient.PostAsync(apiUrl, content)
+                    Dim response As HttpResponseMessage = Await httpClient.PostAsync(apiUrl, content)
 
-            If response.IsSuccessStatusCode Then
-                Dim responseBody As String = Await response.Content.ReadAsStringAsync()
-                Debug.WriteLine("############ responseBody: ############### ")
-                Debug.WriteLine(responseBody)
-                'Job_Description_RichTextBox.Text = responseBody
-                Return responseBody
-            Else
-                Debug.WriteLine("http status code : " & response.StatusCode)
-                Job_Description_RichTextBox.Text = response.StatusCode.ToString()
-            End If
+                    If response.IsSuccessStatusCode Then
+                        Dim responseBody As String = Await response.Content.ReadAsStringAsync()
+                        Debug.WriteLine("############ responseBody: ############### ")
+                        Debug.WriteLine(responseBody)
+                        'Job_Description_RichTextBox.Text = responseBody
+                        Return responseBody
+                    Else
+                        'Debug.WriteLine("http status code : " & response.StatusCode)
+                        Job_Description_RichTextBox.Text = response.StatusCode.ToString()
+                        Return "error"
+                    End If
 
-        End Using
+                End Using
 
+                Return "error"
+            Catch ex As Exception
+
+                JobCollection_ListBox.Items.Add("查詢工作細節 Http request 發生錯誤 重試: " & retry)
+                Continue For
+            End Try
+
+        Next
 
         Return "error"
 
